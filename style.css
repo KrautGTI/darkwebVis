@@ -1,0 +1,64 @@
+body {
+  background: #fcfcfa;
+  color: #333;
+  font-family: "PT Serif", serif;
+  margin: 1em auto 4em auto;
+  position: relative;
+  width: 960px;
+}
+html {
+  min-width: 1040px;
+}
+h1 {
+  font-size: 60px;
+  font-weight: 100;
+  letter-spacing: -2px;
+  margin: 0.3em 0 0.1em 0;
+  font-family: "PT Sans", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+header {
+  font-size: small;
+  font-family: "PT Sans", sans-serif;
+}
+
+header > * {
+  display: inline-block;
+}
+
+a {
+  color: steelblue;
+}
+
+.header-date::after {
+  padding: 0 5px;
+  content: "/";
+}
+
+.axis {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node circle {
+  stroke: #000;
+}
+
+.link {
+  fill: none;
+  stroke: #999;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.3;
+}
+
+.link.active {
+  stroke: red;
+  stroke-width: 2px;
+  stroke-opacity: 1;
+}
+
+.node circle.active {
+  stroke: red;
+  stroke-width: 3px;
+}
