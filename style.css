@@ -1,7 +1,7 @@
 body {
   background: #01011c;
   color: #fff;
-  font-family: "PT Serif", serif;
+  font-family: "Montserrat", sans-serif;
   margin: 1em auto 4em auto;
   position: relative;
   width: 960px;
@@ -12,18 +12,18 @@ html {
 }
 
 h1 {
-  font-size: 60px;
+  font-size: 40px;
   font-weight: 100;
   letter-spacing: -2px;
   margin: 0.3em 0 0.1em 0;
-  font-family: "PT Sans", sans-serif;
+  font-family: "Montserrat", sans-serif;
   text-rendering: optimizeLegibility;
-  text-shadow: 0px 0px 25px rgba(255, 0, 0, 1);
+  text-shadow: 0px 0px 0px rgba(255, 0, 0, 1);
 }
 
 header {
-  font-size: small;
-  font-family: "PT Sans", sans-serif;
+  font-size: 10px;
+  font-family: "Montserrat", sans-serif;
 }
 
 header > * {
@@ -31,7 +31,7 @@ header > * {
 }
 
 a {
-  color: steelblue;
+  color: grey;
 }
 
 .header-date::after {
@@ -66,4 +66,7 @@ a {
 .node.turnedOn {
   stroke: red;
   stroke-width: 2px;
+}
+p {
+  font-size: 15px;
 }

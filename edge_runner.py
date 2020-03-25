@@ -5,6 +5,7 @@ from hashlib import md5
 import random
 from argparse import ArgumentParser
 from math import log2, log10
+import re
 
 file_list = glob.glob("onionscan_results/*.json")
 
@@ -44,47 +45,48 @@ def create_json(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_k
     for hidden_service, score in hidden_services.items():
         data["nodes"].append({
             "id": get_id(hidden_service),
-            "type": "hidden_service",  "name": hidden_service, "x": 0, "y": 1 - log2(score or 1)/max_degree})
+            "type": "hidden_service",  "name": hidden_service, "x": 2, "y": 1 - log2(score or 1)/max_degree})
 
 # clearnet sites are positioned by connectiveness or degree
     max_degree = log2(max([len(x) for x in clearnet_domains.values()]))
     for clearnet_service, hidden_services in clearnet_domains.items():
         data["nodes"].append({
             "id": get_id(clearnet_service),
-            "type": "clearnet_service", "name": clearnet_service, "x": 1, "y": 1 - log2(len(hidden_services) or 1)/max_degree})
+            "type": "clearnet_service", "name": clearnet_service, "x": 3, "y": 1 - log2(len(hidden_services) or 1)/max_degree})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(clearnet_service),
                 "targetNodeId": get_id(hidden_service)
             })
-    # ssh keys
+    # ssh keys y: (len(hidden_services)/max_degree) + random.random() * 0.5
     max_degree = max([len(x) for x in ssh_keys.values()])
     for ssh_key, hidden_services in ssh_keys.items():
         data["nodes"].append({
             "id": get_id(ssh_key),
-            "type": "ssh_key",  "name": ssh_key, "x": 2, "y": (len(hidden_services)/max_degree) + random.random() * 0.1})
+            "type": "ssh_key",  "name": ssh_key, "x": 1, "y":  int(ssh_key[:2], 16)/255})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(ssh_key),
                 "targetNodeId": get_id(hidden_service)
             })
-    # pgp keys
+   # pgp keys
     max_degree = max([len(x) for x in pgp_keys.values()])
     for pgp_key, hidden_services in pgp_keys.items():
         data["nodes"].append({
             "id": get_id(pgp_key),
-            "type": "pgp_key",  "name": pgp_key, "x": 2, "y": len(hidden_services)/max_degree})
+            "type": "pgp_key",  "name": pgp_key, "x": 1, "y": int(pgp_key[:2], 16)/255})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(pgp_key),
                 "targetNodeId": get_id(hidden_service)
             })
+    # y pgp len(hidden_services)/max_degree
 
-# IP addresses are positoned and grouped by class A grouping
+        # IP addresses are positoned and grouped by class A grouping
     for ip_address, hidden_services in ip_addresses.items():
         data["nodes"].append({
             "id": get_id(ip_address),
-            "type": "ip_address",  "name": ip_address, "x": 3, "y": 1-(int(ip_address.split('.')[0])/255)})
+            "type": "ip_address",  "name": ip_address, "x": 0, "y": 1-(int(ip_address.split('.')[0])/255)})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(ip_address),
@@ -95,7 +97,7 @@ def create_json(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_k
         json.dump(data, outfile)
 
 
-def create_dot(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_keys):
+def create_dot(hidden_services, clearnet_domains, ip_addresses, bitcoin_addresses):
     """
     Generating .dot file for visualizing data in jhive
 
@@ -159,11 +161,14 @@ def main(args):
 
                     if isinstance(value, list) or isinstance(value, dict):
                         score = max(1, len(value) / 0.5)
-
-                    if key == "pgpKeys":
+                    if key == "foundApacheModStatus":
                         score = 20
+                    elif key == "pgpKeys":
+                        score = 15
                     elif key == "sshKey":
                         score = 10
+                    elif key == "openDirectories":
+                        score = 5
                     elif key.startswith("server"):
                         score = 5
 
@@ -179,12 +184,12 @@ def main(args):
             if scan_result['relatedOnionServices'] is not None:
                 edges.extend(scan_result['relatedOnionServices'])
 
-            if scan_result['pgpKeys'] is not None:
+            if scan_result['pgpKeys']:
                 for pgp_key in scan_result['pgpKeys']:
                     pgp_keys[pgp_key['fingerprint']].append(
                         scan_result['hiddenService'])
 
-            if scan_result['sshKey'] is not None:
+            if scan_result['sshKey']:
                 ssh_keys[scan_result['sshKey']].append(
                     scan_result['hiddenService'])
 
@@ -199,6 +204,7 @@ def main(args):
             if scan_result['ipAddresses'] is not None:
                 for ip in scan_result['ipAddresses']:
                     ip_addresses[ip].append(scan_result['hiddenService'])
+
     if args.json:
         create_json(hidden_services, clearnet_domains,
                     ip_addresses, ssh_keys, pgp_keys)
