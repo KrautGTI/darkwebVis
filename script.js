@@ -1,5 +1,5 @@
-var width = 960,
-  height = 850,
+var width = 980,
+  height = 900,
   innerRadius = 40,
   outerRadius = 440,
   majorAngle = (2 * Math.PI) / 3,
@@ -156,7 +156,7 @@ function renderGraph() {
       .on("mouseout", mouseout);
   });
 
-  var panZoomInstance = svgPanZoom("svg", {
+  svgPanZoom("svg", {
     panEnabled: true,
     controlIconsEnabled: false,
     zoomEnabled: true,

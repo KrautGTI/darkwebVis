@@ -198,7 +198,7 @@ def main(args):
                     onion_domains[edge].append(scan_result['hiddenService'])
                     hidden_services[edge] += 0
                 else:
-                    tld = ".".join(edge.split('.')[-1:])
+                    tld = "."+".".join(edge.split('.')[-1:])
                     clearnet_domains[tld].append(scan_result['hiddenService'])
 
             if scan_result['ipAddresses'] is not None:

@@ -64,7 +64,7 @@ a {
 }
 
 .node.turnedOn {
-  stroke: red;
+  stroke: yellow;
   stroke-width: 1px;
 }
 p {
