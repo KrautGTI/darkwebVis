@@ -11,8 +11,16 @@ var angle = d3.scale
   .range([0, majorAngle - minorAngle, majorAngle + minorAngle, 2 * majorAngle]);
 var radius = d3.scale.linear().range([innerRadius, outerRadius]);
 
+const tooltip = d3
+  .select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("display", "none");
+
+const tooltipContent = tooltip.append("div").attr("class", "tooltip-content");
+
 function color(n) {
-  const colors = ["#d45c03", "#128a67", "#faf903", "#BF13C2", "#C29F40"];
+  const colors = ["#8b0000", "#128a67", "#d45c03", "#BF13C2", "#C29F40"];
 
   return colors[n % colors.length];
 }
@@ -33,6 +41,7 @@ function typeColors(type) {
 function drawCanvas() {
   return d3
     .select("body")
+    .attr("class", "svg")
     .append("svg")
     .attr("width", width)
     .attr("height", height)
@@ -88,6 +97,13 @@ function renderGraph() {
       .classed("turnedOff", function(dl) {
         return !(dl.source === d || dl.target === d);
       });
+
+    tooltip
+      .style("display", "inline")
+      .style("left", this.getBoundingClientRect().left + "px")
+      .style("top", this.getBoundingClientRect().top + "px");
+    tooltipContent.text(d.name);
+
     d3.select(this).classed("turnedOn", true);
   }
 
@@ -95,6 +111,7 @@ function renderGraph() {
   function mouseout() {
     svg.selectAll(".turnedOn").classed("turnedOn", false);
     svg.selectAll(".turnedOff").classed("turnedOff", false);
+    tooltip.style("display", "none");
   }
 
   d3.json("hive_data.json", data => {
@@ -137,6 +154,21 @@ function renderGraph() {
       .style("fill", d => typeColors(d.type))
       .on("mouseover", nodeMouseover)
       .on("mouseout", mouseout);
+  });
+
+  var panZoomInstance = svgPanZoom("svg", {
+    panEnabled: true,
+    controlIconsEnabled: false,
+    zoomEnabled: true,
+    dblClickZoomEnabled: true,
+    mouseWheelZoomEnabled: true,
+    preventMouseEventsDefault: true,
+    zoomScaleSensitivity: 0.1,
+    fit: false,
+    contain: false,
+    center: false,
+    refreshRate: "auto",
+    eventsListenerElement: null
   });
 }
 
