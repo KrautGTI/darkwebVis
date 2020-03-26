@@ -2,13 +2,57 @@ body {
   background: #01011c;
   color: #fff;
   font-family: "Montserrat", sans-serif;
-  margin: 1em auto 4em auto;
   position: relative;
-  width: 960px;
+  height: 100%;
+  width: 100%;
+  margin: 0;
 }
 
 html {
   min-width: 1040px;
+  height: 100%;
+  width: 100%;
+}
+
+#chart {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+#info {
+  margin-top: 10px;
+  width: 330px;
+  text-align: justify;
+}
+#info p {
+  font-size: 11px;
+}
+#nodeChart {
+  position: fixed;
+  top: 15vh;
+  left: calc(100vw - 400px);
+  overflow: hidden;
+  white-space: pre;
+}
+
+#nodeChart svg {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+#nodeChart div {
+  display: block;
+  font-size: 11px;
+}
+#nodeChart p {
+  display: inline-block;
+  font-size: 11px;
+  padding-left: 0.5em;
+}
+
+#nodeChart p.nodeDisplay-title {
+  font-size: 18px;
 }
 
 h1 {
@@ -19,6 +63,21 @@ h1 {
   font-family: "Montserrat", sans-serif;
   text-rendering: optimizeLegibility;
   text-shadow: 0px 0px 0px rgba(255, 0, 0, 1);
+  text-transform: uppercase;
+}
+h1::after {
+  font-size: 40px;
+  opacity: 0;
+  margin-left: 5px;
+  content: "?";
+  opacity: 0;
+  animation: fadein 3s ease-in-out 0s forwards;
+}
+
+header,
+section {
+  margin: 1em auto 4em auto;
+  width: 960px;
 }
 
 header {
@@ -67,15 +126,15 @@ a {
   stroke: yellow;
   stroke-width: 1px;
 }
-p {
-  font-size: 15px;
-}
+
 .tooltip {
   position: fixed;
   pointer-events: none;
   vertical-align: middle;
   margin-left: 20px;
   margin-top: -5px;
+  overflow: hidden;
+  white-space: pre;
 }
 
 .tooltip::before {
@@ -94,4 +153,77 @@ p {
   padding: 5px;
   font: 10px sans-serif;
   background: #808080;
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hidden-service {
+  color: #8b0000;
+  font-weight: bold;
+}
+
+.clearnet-service {
+  color: #128a67;
+  font-weight: bold;
+}
+
+.ssh-key {
+  color: #d45c03;
+  font-weight: bold;
+}
+
+.pgp-key {
+  color: #ffff00;
+  font-weight: bold;
+}
+
+.ip-address {
+  color: #bf13c2;
+  font-weight: bold;
 }

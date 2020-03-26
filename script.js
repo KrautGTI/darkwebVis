@@ -1,6 +1,4 @@
-var width = 980,
-  height = 900,
-  innerRadius = 40,
+var innerRadius = 40,
   outerRadius = 440,
   majorAngle = (2 * Math.PI) / 3,
   minorAngle = (1 * Math.PI) / 12;
@@ -20,7 +18,7 @@ const tooltip = d3
 const tooltipContent = tooltip.append("div").attr("class", "tooltip-content");
 
 function color(n) {
-  const colors = ["#8b0000", "#128a67", "#d45c03", "#BF13C2", "#C29F40"];
+  const colors = ["#8b0000", "#128a67", "#BF13C2", "#d45c03", "#FFFF00"];
 
   return colors[n % colors.length];
 }
@@ -39,14 +37,18 @@ function typeColors(type) {
 
 // draw Canvas
 function drawCanvas() {
+  const size = document.body.getBoundingClientRect();
+
   return d3
-    .select("body")
-    .attr("class", "svg")
+    .select("#chart")
     .append("svg")
-    .attr("width", width)
-    .attr("height", height)
+    .attr("width", size.width)
+    .attr("height", size.height)
     .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (3 * height) / 5 + ")");
+    .attr(
+      "transform",
+      "translate(" + size.width / 2 + "," + (3 * size.height) / 5 + ")"
+    );
 }
 
 // draw Axes
@@ -70,6 +72,7 @@ function degrees(radians) {
 function renderGraph() {
   var svg = drawCanvas();
   drawAxes(svg);
+  var nodeDisplay = d3.select("#nodeChart");
 
   // highlight link and connected nodes on mouseover
   function linkMouseover(d) {
@@ -105,6 +108,82 @@ function renderGraph() {
     tooltipContent.text(d.name);
 
     d3.select(this).classed("turnedOn", true);
+
+    nodeDisplay
+      .append("div")
+      .append("p")
+      .attr("class", "nodeDisplay-title")
+      .text(() => {
+        switch (d.type) {
+          case "hidden_service":
+            return "Hidden Service";
+          case "clearnet_service":
+            return "Clearnet TLD";
+          case "ssh_key":
+            return "SSH Key";
+          case "pgp_key":
+            return "PGP Fingerprint";
+          case "ip_address":
+            return "IP Address";
+        }
+      });
+
+    const titleRow = nodeDisplay.append("div");
+
+    titleRow
+      .append("svg")
+      .append("circle")
+      .attr("r", 4)
+      .attr("cx", 5)
+      .attr("cy", 5)
+      .style("fill", () => typeColors(d.type));
+
+    titleRow.append("p").text(() => {
+      switch (d.type) {
+        case "hidden_service":
+          return d.name;
+        case "clearnet_service":
+          return d.name;
+        case "ssh_key":
+          return d.name;
+        case "pgp_key":
+          return d.name;
+        case "ip_address":
+          return d.name;
+      }
+    });
+
+    const infoRows = nodeDisplay
+      .selectAll("div.nodeDisplay-info")
+      .data(d.info || [])
+      .enter()
+      .append("div")
+      .attr("class", "nodeDisplay-info");
+
+    infoRows
+      .append("svg")
+      .append("circle")
+      .attr("r", 4)
+      .attr("cx", 5)
+      .attr("cy", 5)
+      .style("fill", d => typeColors(d.type));
+
+    infoRows.append("p").text(d => {
+      switch (d.label) {
+        case "sshKey":
+          return "SSH Key: " + d.value;
+        case "pgpKeys":
+          return d.value + " PGP keys";
+        case "clearnetCount":
+          return d.value + " related clearnet " + pluralize("service", d.value);
+        case "onionCount":
+          return d.value + " related hidden " + pluralize("service", d.value);
+        case "ipAddress":
+          return d.value + " IP " + pluralize("address", d.value);
+        case "score":
+          return "Security score of " + d.value;
+      }
+    });
   }
 
   // clear highlighted nodes or links
@@ -112,6 +191,7 @@ function renderGraph() {
     svg.selectAll(".turnedOn").classed("turnedOn", false);
     svg.selectAll(".turnedOff").classed("turnedOff", false);
     tooltip.style("display", "none");
+    nodeDisplay.selectAll("*").remove();
   }
 
   d3.json("hive_data.json", data => {
@@ -154,6 +234,13 @@ function renderGraph() {
       .style("fill", d => typeColors(d.type))
       .on("mouseover", nodeMouseover)
       .on("mouseout", mouseout);
+
+    window.addEventListener("resize", e => {
+      const docSize = document.body.getBoundingClientRect();
+      d3.select("svg")
+        .attr("width", docSize.width)
+        .attr("height", docSize.height);
+    });
   });
 
   svgPanZoom("svg", {

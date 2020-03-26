@@ -9,7 +9,7 @@ import re
 
 file_list = glob.glob("onionscan_results/*.json")
 
-hidden_services = defaultdict(lambda: 0)
+hidden_services = {}
 onion_domains = defaultdict(lambda: [])
 clearnet_domains = defaultdict(lambda: [])
 ip_addresses = defaultdict(lambda: [])
@@ -27,9 +27,12 @@ def get_id(value):
 
 """
 Generate the JSON data to create Hive chart
+x is the node's axis assignment and y is the position of the node on this axis
+
 x = 0 is a hidden service node
 x = 1 is an ip address node
 x = 2 is a clearnet service node
+x = 3 are ssh keys and pgp keys
 
 """
 
@@ -41,18 +44,49 @@ def create_json(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_k
     data["links"] = []
 
 # hidden service positioned on axis depending on security score. closer to hive is least secure
-    max_degree = log2(max(hidden_services.values()))
-    for hidden_service, score in hidden_services.items():
-        data["nodes"].append({
+    max_degree = log2(max(service["score"]
+                          for service in hidden_services.values()))
+    for hidden_service, info in hidden_services.items():
+        node = {
             "id": get_id(hidden_service),
-            "type": "hidden_service",  "name": hidden_service, "x": 2, "y": 1 - log2(score or 1)/max_degree})
+            "type": "hidden_service",  "name": hidden_service, "score": info["score"],
+            "x": 2, "y": 1 - log2(info["score"] or 1)/max_degree,
+            "info": [
+                {"type": "hidden_service", "label": "score",
+                    "value": info["score"]}
+            ]}
+        if "onionCount" in info:
+            node['info'].append({
+                'type': 'hidden_service', "label": 'onionCount', 'value': info['onionCount']
+            })
+        if "sshKey" in info:
+            node['info'].append({
+                'type': 'ssh_key', "label": 'sshKey', 'value': info['sshKey']
+            })
+        if "pgpKeys" in info:
+            node['info'].append({
+                'type': 'pgp_key', "label": 'pgpKeys', 'value': info['pgpKeys']
+            })
+        if "clearnetCount" in info:
+            node['info'].append({
+                'type': 'clearnet_service', "label": 'clearnetCount', 'value': info['clearnetCount']
+            })
+
+        if "ipAddresses" in info:
+            node['info'].append({
+                'type': 'ip_address', "label": 'ipAddress', 'value': info['ipAddresses']
+            })
+
+        data["nodes"].append(node)
+
 
 # clearnet sites are positioned by connectiveness or degree
     max_degree = log2(max([len(x) for x in clearnet_domains.values()]))
     for clearnet_service, hidden_services in clearnet_domains.items():
         data["nodes"].append({
             "id": get_id(clearnet_service),
-            "type": "clearnet_service", "name": clearnet_service, "x": 3, "y": 1 - log2(len(hidden_services) or 1)/max_degree})
+            "type": "clearnet_service", "name": clearnet_service, "x": 3, "y": 1 - log2(len(hidden_services) or 1)/max_degree,
+            "info": [{'type': 'hidden_service', 'label': 'onionCount', 'value': len(hidden_services)}]})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(clearnet_service),
@@ -63,7 +97,7 @@ def create_json(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_k
     for ssh_key, hidden_services in ssh_keys.items():
         data["nodes"].append({
             "id": get_id(ssh_key),
-            "type": "ssh_key",  "name": ssh_key, "x": 1, "y":  int(ssh_key[:2], 16)/255})
+            "type": "ssh_key",  "name": ssh_key, "x": 1, "y":  int(ssh_key[: 2], 16)/255, "info": [{'type': 'hidden_service', 'label': 'onionCount', 'value': len(hidden_services)}]})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(ssh_key),
@@ -74,7 +108,7 @@ def create_json(hidden_services, clearnet_domains, ip_addresses, ssh_keys, pgp_k
     for pgp_key, hidden_services in pgp_keys.items():
         data["nodes"].append({
             "id": get_id(pgp_key),
-            "type": "pgp_key",  "name": pgp_key, "x": 1, "y": int(pgp_key[:2], 16)/255})
+            "type": "pgp_key",  "name": pgp_key, "x": 1, "y": int(pgp_key[: 2], 16)/255})
         for hidden_service in hidden_services:
             data["links"].append({
                 "sourceNodeId": get_id(pgp_key),
@@ -153,7 +187,9 @@ def main(args):
 
             scan_result = json.load(fd)
 
-            hidden_services[scan_result['hiddenService']] = 0
+            hidden_services[scan_result['hiddenService']] = {
+                "score": 0
+            }
 
             for key, value in scan_result.items():
                 if value is not None and value != "" and value != [] and value != {}:
@@ -172,7 +208,8 @@ def main(args):
                     elif key.startswith("server"):
                         score = 5
 
-                    hidden_services[scan_result['hiddenService']] += score
+                    hidden_services[scan_result['hiddenService']
+                                    ]["score"] += score
 
             edges = []
 
@@ -185,6 +222,8 @@ def main(args):
                 edges.extend(scan_result['relatedOnionServices'])
 
             if scan_result['pgpKeys']:
+                hidden_services[scan_result['hiddenService']
+                                ]["pgpKeys"] = len(scan_result['pgpKeys'])
                 for pgp_key in scan_result['pgpKeys']:
                     pgp_keys[pgp_key['fingerprint']].append(
                         scan_result['hiddenService'])
@@ -192,16 +231,28 @@ def main(args):
             if scan_result['sshKey']:
                 ssh_keys[scan_result['sshKey']].append(
                     scan_result['hiddenService'])
-
+                hidden_services[scan_result['hiddenService']
+                                ]["sshKey"] = scan_result['sshKey']
+            onion_count = 0
+            clearnet_count = 0
             for edge in edges:
                 if edge.endswith(".onion"):
                     onion_domains[edge].append(scan_result['hiddenService'])
-                    hidden_services[edge] += 0
+                    onion_count += 1
                 else:
                     tld = "."+".".join(edge.split('.')[-1:])
                     clearnet_domains[tld].append(scan_result['hiddenService'])
+                    clearnet_count += 1
+            if onion_count > 0:
+                hidden_services[scan_result['hiddenService']
+                                ]['onionCount'] = onion_count
+            if clearnet_count > 0:
+                hidden_services[scan_result['hiddenService']
+                                ]['clearnetCount'] = clearnet_count
 
             if scan_result['ipAddresses'] is not None:
+                hidden_services[scan_result['hiddenService']
+                                ]["ipAddresses"] = len(scan_result['ipAddresses'])
                 for ip in scan_result['ipAddresses']:
                     ip_addresses[ip].append(scan_result['hiddenService'])
 

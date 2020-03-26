@@ -16,17 +16,51 @@
 
   <script src="//d3js.org/d3.v2.min.js" charset="utf-8"></script>
   <script src="d3.hive.min.js"></script>
+  <script src="pluralize.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
   <script src="svg-pan-zoom.js"></script>
   <link rel="stylesheet" type="text/css" href="/style.css" />
   <body>
+    <section id="chart">
+      <!-- Hive Chart Insertion Target -->
+    </section>
     <header>
       <aside class="header-date">March 25, 2020</aside>
       <a href="https://github.com/mang0kitty" rel="author">Aideen Fay</a>
     </header>
-    <h1>THE DARK WEB?</h1>
-    <p>
-      Visualizing anonymity on the Dark Web network with a hive table
-    </p>
+    <section>
+      <h1>The Dark Web</h1>
+      <div id="info">
+        <p>
+          This visualization explores anonymity on the highly connected Dark
+          Web. Although sites on the darknet offer to protect the privacy of
+          their visitors and owner, administrators can inadvertently leak
+          details that put everyone at risk. Staying anonymous on the so-called
+          dark web is hard. Even the most seasoned Darknet administrators like
+          OxyMonster, can make one small mistake and be done for it.
+        </p>
+        <p>
+          This visualization use OnionScan to scan 8,176 .onion
+          <span class="hidden-service">hidden services</span>
+          on the Tor anonymity network and gather various identifying metadata
+          associated with them. We use this metadata in various ways within the
+          hive table to explore relationships and patterns between hidden
+          services using identity correlations such as
+          <span class="ip-address">IP addresses</span>,
+          <span class="ssh-key">SSH keys</span>,
+          <span class="pgp-key">PGP key fingerprints</span>, related
+          <span class="clearnet-service">Clearnet sites</span>.
+        </p>
+        <p>
+          These identities are positionally encoded on their own axes. Hidden
+          services are positioned according to their weighted security score
+          based on found keys, Apache mod_status leak, open directories, bitcoin
+          addresses and server fingerprints. Clearnet sites are positional
+          encoded based on degree and IP addresses are grouped by Class A.
+        </p>
+      </div>
+    </section>
+    <div id="nodeChart"></div>
     <script type="text/javascript" src="/script.js"></script>
   </body>
 </html>
