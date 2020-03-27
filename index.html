@@ -32,26 +32,22 @@
       <h1>The Dark Web</h1>
       <div id="info">
         <p>
-          This visualization explores anonymity on the highly connected dark
-          Web. Although sites on the darknet offer to protect the privacy of
-          their visitors and owner, administrators can inadvertently leak
-          details that put everyone at risk. Staying anonymous on the so-called
-          dark web is hard.
+          This visualization explores anonymity on the Dark Web. Although sites
+          on the darknet offer to protect the privacy of their visitors and
+          owner, administrators can inadvertently leak details that put everyone
+          at risk.
         </p>
         <p>
-          This visualization use OnionScan to scan 8,176 .onion hidden services
-          on the Tor anonymity network and gather identifying metadata
-          associated with them. We use this metadata in various ways within the
-          hive table to explore relationships and patterns between hidden
-          services using identity correlations such as IP addresses,SSH keys,
-          PGP key fingerprints, related Clearnet sites.
+          Each red node on the hive plot represents a .onion hidden service
+          scanned by OnionScan. We explore the relationships and patterns
+          between hidden services and identity correlations such as IP
+          addresses, SSH keys, PGP key fingerprints, related Clearnet sites.
         </p>
         <p>
           These identities are positionally encoded on their own axes. Hidden
-          services are positioned according to their weighted security score
-          based on found keys, Apache mod_status leak, open directories, bitcoin
-          addresses and server fingerprints. Clearnet sites are positional
-          encoded based on degree and IP addresses are grouped by Class A.
+          services are positioned based on their weighted security score.
+          Clearnet sites are positional encoded based on degree and IP addresses
+          are grouped by Class A.
         </p>
       </div>
     </section>
