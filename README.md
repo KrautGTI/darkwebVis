@@ -3,6 +3,11 @@ This Hive Plot visualization explores anonymity on the highly connected Dark Web
 
 This visualization uses OnionScan  to scan 8,176 .onion hidden services on the Tor  anonymity network and gather various identifying metadata associated with them. We use this metadata in various ways within the hive table to explore relationships and patterns between hidden services using identity correlations such as IP addresses, SSH keys,  PGP fingerprint keys, related Clearnet sites. Curved links connect related entities. A lot of interesting exploratory work can be done with this data to begin to uncover relationships and patterns regarding privacy preservation and anonymity networks on the Dark Web.
 
+<p align="center">
+ <img src="https://user-images.githubusercontent.com/43414276/80153955-77487200-85b6-11ea-9054-15c4fbf7a656.PNG?raw=true" alt="DarkWeb Visualization" height="400" width="400"/>
+</p>
+
+
 ## Implementation
 I used D3.js to create this visualization along with Python for data collection, cleaning, aggregation and preparation into the correct data structures and JSON format for parsing.
 
