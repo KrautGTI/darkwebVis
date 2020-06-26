@@ -27,3 +27,4 @@ steps:
     ConnectedServiceNameARM: MSFT Benefit
     ProfileName: blog-aideen
     EndpointName: blog-aideen-darkweb
+    ResourceGroupName: blog-aideen
