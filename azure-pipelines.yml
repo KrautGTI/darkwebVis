@@ -18,5 +18,5 @@ steps:
     Destination: AzureBlob
     storage: blogaideen
     ContainerName: darkweb
-    SourcePath: ./public/
+    SourcePath: ./public/*
     CleanTargetBeforeCopy: true
