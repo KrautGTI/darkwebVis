@@ -20,3 +20,10 @@ steps:
     ContainerName: darkweb
     SourcePath: ./public/*
     CleanTargetBeforeCopy: true
+- task: PurgeAzureCDNEndpoint@2
+  displayName: Purge CDN
+  inputs:
+    ConnectedServiceNameSelector: ConnectedServiceNameARM
+    ConnectedServiceNameARM: MSFT Benefit
+    ProfileName: blog-aideen
+    EndpointName: blog-aideen-darkweb
