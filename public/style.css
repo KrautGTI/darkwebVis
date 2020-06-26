@@ -228,3 +228,12 @@ a {
   color: #bf13c2;
   font-weight: bold;
 }
+
+.selectable {
+  position: relative;
+}
+
+.selectable div {
+  position: absolute;
+  z-index: 1000;
+}
