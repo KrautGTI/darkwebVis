@@ -91,6 +91,7 @@ header > * {
 
 a {
   color: grey;
+  text-decoration: none;
 }
 
 .header-date::after {
