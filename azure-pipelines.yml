@@ -1,0 +1,22 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureFileCopy@4
+  displayName: Copy to Azure Storage
+  inputs:
+    azureSubscription: MSFT Benefit
+    resourceGroup: blog-aideen
+    Destination: AzureBlob
+    storage: blogaideen
+    ContainerName: darkweb
+    SourcePath: ./public/
+    CleanTargetBeforeCopy: true
